@@ -4,8 +4,10 @@
 within your Python programs.
 """
 
-from __future__ import unicode_literals, print_function
+from __future__ import unicode_literals
 from functools import wraps
+from queue import Empty
+
 try:
     import cPickle as pickle
 except ImportError:
@@ -22,7 +24,7 @@ __version_info__ = tuple(int(v) for v in __version__.split('.'))
 
 def key_for_name(name):
     """Return the key name used to store the given queue name in Redis."""
-    return 'hotqueue:%s' % name
+    return 'hotqueue:{}'.format(name)
 
 
 class HotQueue(object):
@@ -59,7 +61,7 @@ class HotQueue(object):
         """Clear the queue of all messages, deleting the Redis key."""
         self._redis.delete(self.key)
     
-    def consume(self, **kwargs):
+    def consume(self, limit=None, **kwargs):
         """Return a generator that yields whenever a message is waiting in the
         queue. Will block otherwise. Example:
         
@@ -67,20 +69,22 @@ class HotQueue(object):
         ...     print msg
         my message
         another message
-        
+
+        :param limit: maximum number of items to retrieve
+            (default ``None``, i.e. infinite)
         :param kwargs: any arguments that :meth:`~hotqueue.HotQueue.get` can
             accept (:attr:`block` will default to ``True`` if not given)
         """
         kwargs.setdefault('block', True)
-        try:
-            while True:
+        limit = limit or float("inf")
+        count = 0
+        while count < limit:
+            try:
                 msg = self.get(**kwargs)
-                if msg is None:
-                    break
-                yield msg
-        except KeyboardInterrupt:
-            print()
-            return
+            except Empty:
+                break
+            yield msg
+            count += 1
     
     def get(self, block=False, timeout=None):
         """Return a message from the queue. Example:
@@ -91,18 +95,26 @@ class HotQueue(object):
         'another message'
         
         :param block: whether or not to wait until a msg is available in
-            the queue before returning; ``False`` by default
+            the queue; ``False`` by default. Will raise ``queue.Empty`` if
+            no message is available
         :param timeout: when using :attr:`block`, if no msg is available
-            for :attr:`timeout` in seconds, give up and return ``None``
+            for :attr:`timeout` in seconds, raise ``queue.Empty``
         """
         if block:
             if timeout is None:
                 timeout = 0
             msg = self._redis.blpop(self.key, timeout=timeout)
-            if msg is not None:
+            if msg is None:
+                raise Empty("Redis queue {} was empty after {}s".format(
+                    self.key, timeout
+                ))
+            else:
                 msg = msg[1]
         else:
             msg = self._redis.lpop(self.key)
+            if msg is None:
+                raise Empty("Redis queue {} is empty".format(self.key))
+
         if msg is not None and self.serializer is not None:
             msg = self.serializer.loads(msg)
         return msg

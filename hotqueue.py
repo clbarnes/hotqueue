@@ -4,6 +4,7 @@
 within your Python programs.
 """
 
+from __future__ import unicode_literals, print_function
 from functools import wraps
 try:
     import cPickle as pickle
@@ -78,7 +79,8 @@ class HotQueue(object):
                     break
                 yield msg
         except KeyboardInterrupt:
-            print; return
+            print()
+            return
     
     def get(self, block=False, timeout=None):
         """Return a message from the queue. Example:

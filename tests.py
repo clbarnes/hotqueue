@@ -6,6 +6,7 @@ and a list key named 'hotqueue:testqueue' will be created and deleted in db 0
 several times while the tests are running.
 """
 
+from __future__ import unicode_literals
 from time import sleep
 import threading
 import unittest
@@ -22,6 +23,7 @@ class DummySerializer(object):
     @staticmethod
     def dumps(s):
         return "foo"
+
     @staticmethod
     def loads(s):
         return s

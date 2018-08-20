@@ -20,6 +20,9 @@ Contributing
 ============
 The source is available on `GitHub <http://github.com/richardhenry/hotqueue>`_. To contribute to the project, fork it on GitHub and send a pull request, all contributions and suggestions are welcome.
 
+Run tests on all valid versions of CPython with ``tox``.
+
+
 .. _PyPI: https://pypi.python.org/pypi/hotqueue
 
 .. |PyPI| image:: https://img.shields.io/pypi/v/hotqueue.svg?style=flat

@@ -15,6 +15,7 @@ from setuptools import setup
 
 rel_file = lambda *args: os.path.join(os.path.dirname(os.path.abspath(__file__)), *args)
 
+
 def read_from(filename):
     fp = open(filename)
     try:
@@ -22,13 +23,16 @@ def read_from(filename):
     finally:
         fp.close()
 
+
 def get_long_description():
     return read_from(rel_file('README.rst'))
 
+
 def get_requirements():
-    data = read_from(rel_file('REQUIREMENTS'))
+    data = read_from(rel_file('requirements.txt'))
     lines = map(lambda s: s.strip(), data.splitlines())
     return filter(None, lines)
+
 
 def get_version():
     data = read_from(rel_file('hotqueue.py'))

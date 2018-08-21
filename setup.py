@@ -13,7 +13,8 @@ except ImportError:
 from setuptools import setup
 
 
-rel_file = lambda *args: os.path.join(os.path.dirname(os.path.abspath(__file__)), *args)
+def rel_file(*args):
+    return os.path.join(os.path.dirname(os.path.abspath(__file__)), *args)
 
 
 def read_from(filename):
@@ -47,12 +48,16 @@ setup(
         "a message queue within your Python programs.",
     license="MIT",
     long_description=get_long_description(),
-    install_requires=["redis>=2.0.0"],
+    install_requires=[
+        "redis>=2.0.0",
+        "six>=1.0.0",
+        "enum34>=1.0.0 ; python_version < '3.4'"
+    ],
     tests_require=["tox>=3.0.0"],
     py_modules=['hotqueue'],
     url="https://github.com/richardhenry/hotqueue",
     version=get_version(),
-    classifiers =[
+    classifiers=[
         'Programming Language :: Python',
         'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',

@@ -9,6 +9,9 @@ from queue import Empty
 from time import sleep
 import threading
 import unittest
+
+from redis import DataError
+
 try:
     import cPickle as pickle
 except ImportError:
@@ -166,8 +169,9 @@ class HotQueueTestCase(unittest.TestCase):
         self.queue.serializer = None
         self.queue.put(msg)
         self.assertEqual(self.queue.get(), msg)
-        self.queue.put({"a": 1})
-        self.assertEqual(self.queue.get(), "{'a': 1}")  # Should be a string
+        with self.assertRaises(DataError):
+            self.queue.put({"a": 1})
+
         # Test using DummySerializer:
         self.queue.serializer = DummySerializer
         self.queue.put(msg)

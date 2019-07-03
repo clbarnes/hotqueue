@@ -5,6 +5,7 @@ Python program (``python tests.py``). Redis must be running on localhost:6379,
 and a list key named 'hotqueue:testqueue' will be created and deleted in db 0
 several times while the tests are running.
 """
+from queue import Empty
 from time import sleep
 import threading
 import unittest
@@ -81,7 +82,8 @@ class HotQueueTestCase(unittest.TestCase):
     def test_cleared(self):
         """Test for correct behaviour if the Redis list does not exist."""
         self.assertEqual(len(self.queue), 0)
-        self.assertEqual(self.queue.get(), None)
+        with self.assertRaises(Empty):
+            self.queue.get()
 
     def test_get_order(self):
         """Test that messages are get in the same order they are put."""

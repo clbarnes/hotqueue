@@ -5,6 +5,7 @@ within your Python programs.
 """
 from __future__ import print_function
 from functools import wraps
+from queue import Empty
 try:
     import cPickle as pickle
 except ImportError:  # pragma: no cover
@@ -90,7 +91,7 @@ class HotQueue(object):
         """
         self.__redis.delete(self.key)
 
-    def consume(self, **kwargs):
+    def consume(self, limit=None, **kwargs):
         """
         A blocking generator that yields whenever a message is waiting in the
         queue.
@@ -117,16 +118,17 @@ class HotQueue(object):
         another message
 
         """
+        if limit is None:
+            limit = float('inf')
         kwargs.setdefault('block', True)
-        try:
-            while True:
+        count = 0
+        while count < limit:
+            try:
                 msg = self.get(**kwargs)
-                if msg is None:
-                    break
-                yield msg
-        except KeyboardInterrupt:  # pragma: no cover
-            print()
-            return
+            except Empty:
+                break
+            yield msg
+            count += 1
 
     def get(self, block=False, timeout=None):
         """
@@ -161,10 +163,17 @@ class HotQueue(object):
             if timeout is None:
                 timeout = 0
             msg = self.__redis.blpop(self.key, timeout=timeout)
-            if msg is not None:
+            if msg is None:
+                raise Empty("Redis queue {} was empty after {}s".format(
+                    self.key, timeout
+                ))
+            else:
                 msg = msg[1]
         else:
             msg = self.__redis.lpop(self.key)
+            if msg is None:
+                raise Empty("Redis queue {} is empty".format(self.key))
+
         if msg is not None and self.serializer is not None:
             msg = self.serializer.loads(msg)
 

@@ -161,8 +161,7 @@ class HotQueue(object):
                 raise queue.Empty("Redis queue {} was empty after {}s".format(
                     self.key, timeout
                 ))
-            else:
-                msg = msg[1]
+            msg = msg[1]
         else:
             msg = self._redis.lpop(self.key)
             if msg is None:

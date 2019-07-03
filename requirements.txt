@@ -1,0 +1,12 @@
+setuptools
+tox
+redislite
+redis
+nose
+nose-cov
+flake8
+sphinx
+sphinx-pypi-upload
+sphinx_rtd_theme
+pylint
+pycodestyle

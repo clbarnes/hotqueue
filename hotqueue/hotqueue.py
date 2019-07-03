@@ -6,20 +6,7 @@ within your Python programs.
 from __future__ import print_function
 from functools import wraps
 
-try:
-    from queue import Empty
-except ImportError:  # pragma: no cover
-    from Queue import Empty
-
-try:
-    import cPickle as pickle
-except ImportError:  # pragma: no cover
-    import pickle
-
-try:
-    from redislite import Redis
-except ImportError:  # pragma: no cover
-    from redis import Redis
+from .compat import queue, pickle, Redis
 
 
 def key_for_name(name):
@@ -130,7 +117,7 @@ class HotQueue(object):
         while count < limit:
             try:
                 msg = self.get(**kwargs)
-            except Empty:
+            except queue.Empty:
                 break
             yield msg
             count += 1
@@ -169,7 +156,7 @@ class HotQueue(object):
                 timeout = 0
             msg = self._redis.blpop(self.key, timeout=timeout)
             if msg is None:
-                raise Empty("Redis queue {} was empty after {}s".format(
+                raise queue.Empty("Redis queue {} was empty after {}s".format(
                     self.key, timeout
                 ))
             else:
@@ -177,7 +164,7 @@ class HotQueue(object):
         else:
             msg = self._redis.lpop(self.key)
             if msg is None:
-                raise Empty("Redis queue {} is empty".format(self.key))
+                raise queue.Empty("Redis queue {} is empty".format(self.key))
 
         if msg is not None and self.serializer is not None:
             msg = self.serializer.loads(msg)

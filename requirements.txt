@@ -10,3 +10,4 @@ sphinx-pypi-upload
 sphinx_rtd_theme
 pylint
 pycodestyle
+pickle5; python_version >= 3.6 and python_version < 3.8

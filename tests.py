@@ -11,17 +11,8 @@ import unittest
 
 from redis import DataError
 
-try:
-    from queue import Empty
-except ImportError:
-    from Queue import Empty
-
-try:
-    import cPickle as pickle
-except ImportError:
-    import pickle
-
 from hotqueue import HotQueue
+from hotqueue.compat import pickle, queue
 
 
 class DummySerializer(object):
@@ -89,7 +80,7 @@ class HotQueueTestCase(unittest.TestCase):
     def test_cleared(self):
         """Test for correct behaviour if the Redis list does not exist."""
         self.assertEqual(len(self.queue), 0)
-        with self.assertRaises(Empty):
+        with self.assertRaises(queue.Empty):
             self.queue.get()
 
     def test_get_order(self):

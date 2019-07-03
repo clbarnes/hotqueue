@@ -5,12 +5,16 @@ Python program (``python tests.py``). Redis must be running on localhost:6379,
 and a list key named 'hotqueue:testqueue' will be created and deleted in db 0
 several times while the tests are running.
 """
-from queue import Empty
 from time import sleep
 import threading
 import unittest
 
 from redis import DataError
+
+try:
+    from queue import Empty
+except ImportError:
+    from Queue import Empty
 
 try:
     import cPickle as pickle

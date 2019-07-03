@@ -5,7 +5,12 @@ within your Python programs.
 """
 from __future__ import print_function
 from functools import wraps
-from queue import Empty
+
+try:
+    from queue import Empty
+except ImportError:  # pragma: no cover
+    from Queue import Empty
+
 try:
     import cPickle as pickle
 except ImportError:  # pragma: no cover

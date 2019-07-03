@@ -11,3 +11,5 @@ MANIFEST
 cobertura.xml
 .coverage
 nosetests.xml
+.tox/
+hotqueue/package_metadata.json

@@ -24,12 +24,9 @@ class PickleSerializer(object):
             "protocol", protocol
         )
         self.loads_kwargs = deepcopy(loads_kwargs) or dict()
-        self.loads_kwargs["protocol"] = self.loads_kwargs.get(
-            "protocol", protocol
-        )
 
     def dumps(self, obj, **kwargs):
         return pickle.dumps(obj, **merge_kwargs(self.dumps_kwargs, kwargs))
 
     def loads(self, s, **kwargs):
-        return pickle.loads(s, **merge_kwargs(self.dumps_kwargs, kwargs))
+        return pickle.loads(s, **merge_kwargs(self.loads_kwargs, kwargs))

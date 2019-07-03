@@ -11,7 +11,7 @@ import unittest
 
 from redis import DataError
 
-from hotqueue import HotQueue
+from hotqueue import HotQueue, PickleSerializer
 from hotqueue.compat import pickle, queue
 
 
@@ -58,7 +58,7 @@ class HotQueueTestCase(unittest.TestCase):
         self.assertEqual(self.queue.name, kwargs['name'])
         self.assertEqual(self.queue.key, "hotqueue:%s" % kwargs['name'])
 
-        # Defaults to cPickle or pickle depending on the platform
+        # Defaults to cPickle or pickle or pickle5 depending on the platform
         self.assertTrue(self.queue.serializer is pickle)
 
     def test_consume(self):
@@ -171,6 +171,16 @@ class HotQueueTestCase(unittest.TestCase):
         self.queue.serializer = DummySerializer
         self.queue.put(msg)
         self.assertEqual(self.queue.get(), "foo")
+
+    def test_pickle_serializer(self):
+        msg = {"a": 1}
+        self.queue.serializer = PickleSerializer()
+        self.assertEqual(
+            self.queue.serializer.protocol,
+            pickle.HIGHEST_PROTOCOL
+        )
+        self.queue.put(msg)
+        self.assertEqual(self.queue.get(), msg)
 
 
 if __name__ == "__main__":

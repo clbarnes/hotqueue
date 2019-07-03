@@ -1,20 +1,26 @@
 language: python
-python: 2.7
+dist: xenial
+python: 3.7
 env:
   - TOX_ENV=py27-redislite
-  - TOX_ENV=py34-redislite
+  - TOX_ENV=py35-redislite
+  - TOX_ENV=py36-redislite
+  - TOX_ENV=py37-redislite
 matrix:
   fast_finish: true
   allow_failures:
     - env:
       - TOX_ENV=py27-redis
-      - TOX_ENV=py34-redis
+      - TOX_ENV=py35-redis
+      - TOX_ENV=py36-redis
+      - TOX_ENV=py37-redis
       - TOX_ENV=build_docs
+before_install:
+  - sudo aot-get update -qq
 install:
-  - sudo apt-get update -qq
-  - pip install --upgrade pip setuptools tox virtualenv coveralls
+  - pip install tox-travis
 script:
-  - tox -v -e $TOX_ENV
+  - tox
 after_success:
   coveralls
 after_failure:

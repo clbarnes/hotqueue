@@ -71,12 +71,12 @@ class HotQueue(object):
         self.serializer = serializer
         self.max_queue_length = max_queue_length
         if redis:
-            self.__redis = redis
+            self._redis = redis
         else:
-            self.__redis = Redis(**kwargs)
+            self._redis = Redis(**kwargs)
 
     def __len__(self):
-        return self.__redis.llen(self.key)
+        return self._redis.llen(self.key)
 
     @property
     def key(self):
@@ -94,7 +94,7 @@ class HotQueue(object):
         """
         Clear the queue of all messages, by deleting the Redis key.
         """
-        self.__redis.delete(self.key)
+        self._redis.delete(self.key)
 
     def consume(self, limit=None, **kwargs):
         """
@@ -167,7 +167,7 @@ class HotQueue(object):
         if block:
             if timeout is None:
                 timeout = 0
-            msg = self.__redis.blpop(self.key, timeout=timeout)
+            msg = self._redis.blpop(self.key, timeout=timeout)
             if msg is None:
                 raise Empty("Redis queue {} was empty after {}s".format(
                     self.key, timeout
@@ -175,7 +175,7 @@ class HotQueue(object):
             else:
                 msg = msg[1]
         else:
-            msg = self.__redis.lpop(self.key)
+            msg = self._redis.lpop(self.key)
             if msg is None:
                 raise Empty("Redis queue {} is empty".format(self.key))
 
@@ -200,9 +200,9 @@ class HotQueue(object):
         """
         if self.serializer is not None:
             msgs = [self.serializer.dumps(m) for m in msgs]
-        self.__redis.rpush(self.key, *msgs)
+        self._redis.rpush(self.key, *msgs)
         if self.max_queue_length:
-            self.__redis.ltrim(self.key, 0, int(self.max_queue_length) - 1)
+            self._redis.ltrim(self.key, 0, int(self.max_queue_length) - 1)
 
     def worker(self, *args, **kwargs):
         """Decorator for using a function as a queue worker. Example:

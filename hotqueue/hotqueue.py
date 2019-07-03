@@ -32,7 +32,9 @@ class HotQueue(object):
         methods or functions named ``dumps`` and ``loads``,
         `pickle <http://docs.python.org/library/pickle.html>`_ is the default,
         use ``None`` to store messages in plain text (suitable for strings,
-        integers, etc)
+        integers, etc).
+        Consider using a hotqueue.PickleSerializer, which uses the newest pickle
+        protocol available, rather than a lower version for compatibility.
 
     redis : redis.Redis, redislite.Redis, optional
         redis connection object, defaults to redislite.Redis with fallback to
